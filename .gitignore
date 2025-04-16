@@ -174,3 +174,9 @@ dev
 
 runs/
 figs/
+
+gdc-client
+downloaded-expr
+UNI2-h-features
+TCGA_Reports.csv
+clinical.csv
