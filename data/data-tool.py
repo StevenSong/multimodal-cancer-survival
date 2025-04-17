@@ -34,7 +34,7 @@ def parse_args():
     prepare_parser = subparsers.add_parser("prepare", parents=[shared_parser])
     prepare_parser.add_argument("--clinical-data", required=True)
     prepare_parser.add_argument("--expr-manifest", required=True)
-    # prepare_parser.add_argument("--hist-manifest", required=True)
+    prepare_parser.add_argument("--hist-manifest", required=True)
 
     organize_parser = subparsers.add_parser("organize", parents=[shared_parser])
     organize_parser.add_argument("--downloaded-expr", required=True)
@@ -57,17 +57,16 @@ def main(args):
             columns={"file_name": "filename", "file_size": "size", "md5sum": "md5"}
         )[["id", "filename", "md5", "size", "state"]]
         exprs.to_csv(args.expr_manifest, sep="\t", index=False)
-        # No need for hist manifest since using precomputed embeddings
-        # hists = hists.rename(
-        #     columns={"file_name": "filename", "file_size": "size", "md5sum": "md5"}
-        # )[["id", "filename", "md5", "size", "state"]]
-        # hists.to_csv(args.hist_manifest, sep="\t", index=False)
+        hists = hists.rename(
+            columns={"file_name": "filename", "file_size": "size", "md5sum": "md5"}
+        )[["id", "filename", "md5", "size", "state"]]
+        hists.to_csv(args.hist_manifest, sep="\t", index=False)
 
         print()
         print(f"Clinical data saved to {args.clinical_data}")
         print()
         print(f"Expr manifest saved to {args.expr_manifest}")
-        # print(f"Hist manifest saved to {args.hist_manifest}")
+        print(f"Hist manifest saved to {args.hist_manifest}")
         print()
         print("Use the manifests with the GDC Data Transfer Tool:")
         print("https://gdc.cancer.gov/access-data/gdc-data-transfer-tool")

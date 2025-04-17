@@ -13,7 +13,8 @@ This folder contains tools and instructions for preparing data for our experimen
     python data-tool.py prepare \
     --reports-path /path/to/TCGA-Reports.csv \
     --clinical-data /path/to/save/clinical.csv \
-    --expr-manifest /path/to/save/expr-manifest.txt
+    --expr-manifest /path/to/save/expr-manifest.txt \
+    --hist-manifest /path/tosave/hist-manifest.txt
     ```
 1. Download gene expression data using the GDC Data Transfer Tool and the prepared manifest:
     ```bash
@@ -22,6 +23,7 @@ This folder contains tools and instructions for preparing data for our experimen
     -d /path/to/save/downloaded-expr
     ```
     * Check to make sure all files are downloaded. If some files fail to download, they can be reattempted by repeating the above command. The transfer tool will treat it as a partial download and will not reattempt files already downloaded.
+    * For our experiments, we use pre-computed embeddings from UNI2-h. We therefore do not download the source histology slides using the manifest, however to do so is simple using `gdc-client`.
 1. Download pre-computed TCGA histology embeddings from [`MahmoodLab/UNI2-h-features`](MahmoodLab/UNI2-h-features):
     ```bash
     huggingface-cli download \
