@@ -7,6 +7,7 @@ import haiku as hk
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pandas as pd
 from multiomics_open_research.bulk_rna_bert.preprocess import (
     preprocess_rna_seq_for_bulkrnabert,
     preprocess_tcga_rna_seq_dataset,
@@ -18,11 +19,13 @@ from tqdm import trange
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset-folder", required=True)
+    parser.add_argument("--preprocessed-cache", default="preprocessed_genes.csv")
     parser.add_argument("--output-h5", required=True)
     parser.add_argument("--gene-list", required=True)
     parser.add_argument("--rna-seq-column", default="tpm_unstranded")
     parser.add_argument("--model-name", default="bulk_rna_bert_gtex_encode")
     parser.add_argument("--weights-folder", required=True)
+    parser.add_argument("--aggregation", required=True, choices=["mean", "max"])
     args = parser.parse_args()
     return args
 
@@ -31,13 +34,17 @@ def main(args):
     with open(args.gene_list, "r") as f:
         reference_gene_ids = [line.strip() for line in f.readlines()]
 
-    print("Preprocessing dataset")
-    df = preprocess_tcga_rna_seq_dataset(
-        dataset_path=Path(args.dataset_folder),
-        output_file=None,
-        reference_gene_ids=reference_gene_ids,
-        rna_seq_column=args.rna_seq_column,
-    )
+    if os.path.exists(args.preprocessed_cache):
+        print("Using cached preprocessed dataset")
+        df = pd.read_csv(args.preprocessed_cache)
+    else:
+        print("Preprocessing dataset")
+        df = preprocess_tcga_rna_seq_dataset(
+            dataset_path=Path(args.dataset_folder),
+            output_file=args.preprocessed_cache,
+            reference_gene_ids=reference_gene_ids,
+            rna_seq_column=args.rna_seq_column,
+        )
     df = df.sort_values(["case_id", "identifier"]).reset_index(drop=True)
 
     parameters, forward_fn, tokenizer, config = get_pretrained_model(
@@ -53,7 +60,6 @@ def main(args):
 
     rna_seq_array = preprocess_rna_seq_for_bulkrnabert(df, config)
     random_key = jax.random.PRNGKey(0)
-    outs = []
 
     print("Generating embeddings")
     if os.path.exists(args.output_h5):
@@ -67,11 +73,17 @@ def main(args):
                 continue
             elif case_id not in h5:
                 h5.create_group(case_id)
-            batch_array = rna_seq_array[i:i]  # requires batch dim
+            batch_array = rna_seq_array[i : i + 1]  # requires batch dim
             tokens_ids = tokenizer.batch_tokenize(batch_array)
             tokens = jnp.asarray(tokens_ids, dtype=jnp.int32)
             outs = forward_fn.apply(parameters, random_key, tokens)
-            embs = np.array(outs["embeddings_4"])
+            embs = np.array(outs["embeddings_4"])  # (Batch, Genes, Hidden)
+            if args.aggregation == "mean":
+                embs = embs.mean(axis=1)  # along gene axis=1
+            elif args.aggregation == "max":
+                embs = embs.max(axis=1)
+            else:
+                raise ValueError(f"Unknown aggregation method: {args.aggregation}")
             emb = embs[0]  # unwrap batch dim
             h5[case_id].create_dataset(file_id, data=emb)
 
