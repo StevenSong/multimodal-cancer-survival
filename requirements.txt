@@ -15,6 +15,7 @@ pandas
 pqdm
 pre-commit
 scikit-learn
+scikit-survival
 scipy
 seaborn
 statannotations
