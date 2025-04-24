@@ -181,7 +181,6 @@ data/UNI2-h-features
 data/expr
 data/hist
 data/TCGA_Reports.csv
-data/clinical.csv
 data/Hist-not-found.csv
 data/Expr-not-found.csv
 
