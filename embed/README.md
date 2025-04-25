@@ -5,7 +5,7 @@ Separate embedding scripts are provided for each modality, described below. Addi
 ## Embed RNA-seq
 We embed RNA-seq gene expression data using BulkRNABert by Gelard et al. 2025. We have minimally modified the authors' codebase for use in our analysis; our modified version is [forked here](https://github.com/StevenSong/BulkRNABert) and is installed via this project's [`requirements.txt`](../requirements.txt).
 
-**NB:** You still need to download the `checkpoints` folder so that the model weights can be loaded for inference: https://github.com/instadeepai/multiomics-open-research/tree/main/checkpoints
+**NB:** You still need to download the `checkpoints` folder so that the model weights can be loaded for inference: https://github.com/instadeepai/multiomics-open-research/tree/main/checkpoints. While Gelard et al. provide checkpoints for their model trained on TCGA data, we strictly use models which are not trained on TCGA to avoid data leakage.
 
 Our version expects a GPU to accelerate inference. To embed the prepared RNA-seq data, run:
 ```bash
@@ -37,7 +37,7 @@ python embed_biomistral.py \
 ```
 
 ### Generate Summaries
-While BioMistral allows us to use longer input texts, the information contained within the original pathology reports are often repeptitive and poorly organized in its raw form. We therefore use an LLM to generate summaries of the reports first, after which we can also embed the summarized text using the same utility as above. To generate and embed summaries, run:
+While BioMistral allows us to use longer input texts, the information contained within the original pathology reports are often repeptitive and poorly organized in its raw form. We therefore use an LLM to generate summaries of the reports first, after which we can also embed the summarized text using the same utility as above. We generate summaries using Llama-3.1-8B-Instruct by Grattafiori et al. 2024. This model was chosen for its strong general instruction following capabilities. To generate and embed summaries, run:
 ```bash
 python generate_summaries.py \
 --input-csv ../data/TCGA_Reports.csv \
