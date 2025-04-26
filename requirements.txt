@@ -14,6 +14,7 @@ openai
 pandas
 pqdm
 pre-commit
+scanpy
 scikit-learn
 scikit-survival
 scipy
