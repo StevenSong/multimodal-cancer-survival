@@ -30,3 +30,4 @@ vllm
 wandb
 omegaconf
 git+https://github.com/StevenSong/BulkRNABert.git
+git+https://github.com/StevenSong/UCE.git
