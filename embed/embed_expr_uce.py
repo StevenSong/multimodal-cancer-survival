@@ -68,8 +68,8 @@ def prepare_adata_for_uce(dataset_path, preprocessed_cache, debug=None):
         exp.index.name = None
         exp = exp.T.rename(index={"unstranded": case_id})
         exps.append(exp.loc[[case_id]].astype(int))
-        for e in exps:
-            assert (e.columns == exps[0].columns).all()
+    for e in exps:
+        assert (e.columns == exps[0].columns).all()
     X = pd.concat(exps)
 
     # sum together duplicate genes
