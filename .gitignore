@@ -183,8 +183,11 @@ data/hist
 data/TCGA_Reports.csv
 data/Hist-not-found.csv
 data/Expr-not-found.csv
+data/sampled.csv
+data/summarized_reports_corrected.csv
 
 embed/*.h5
+embed/*.h5ad
 embed/model-cache
 embed/preprocessed_genes.csv
 
