@@ -256,6 +256,8 @@ def get_clin_metadata():
                 [
                     "project.project_id",
                     "submitter_id",
+                    "diagnoses.age_at_diagnosis",
+                    "diagnoses.diagnosis_is_primary_disease",
                     "demographic.days_to_death",
                     "demographic.vital_status",
                     "follow_ups.days_to_follow_up",
@@ -291,10 +293,28 @@ def get_clin_metadata():
             if "ethnicity" in demo:
                 ethnicity = demo["ethnicity"]
 
+        age = np.nan
+        if "diagnoses" in datum:
+            count = 0
+            for x in datum["diagnoses"]:
+                # get age of primary diagnosis
+                if (
+                    "diagnosis_is_primary_disease" in x
+                    and x["diagnosis_is_primary_disease"]
+                ):
+                    count += 1
+                    aad = x["age_at_diagnosis"]
+                    if isinstance(aad, int):
+                        age = aad / 365
+            if count > 1:
+                print(f"Unclear how {case_id} has multiple primaries:")
+                print(datum["diagnoses"])
+
         days_to_last_follow_up = np.nan
         if "follow_ups" in datum:
             for x in datum["follow_ups"]:
                 fu_dt = x["days_to_follow_up"]
+                # get latest f/u
                 if isinstance(fu_dt, int):
                     if (
                         np.isnan(days_to_last_follow_up)
@@ -307,6 +327,7 @@ def get_clin_metadata():
                 "case_id": case_id,
                 "project": project,
                 "sex": sex,
+                "age": age,
                 "race": race,
                 "ethnicity": ethnicity,
                 "vital_status": vital_status,
@@ -336,8 +357,14 @@ def get_clin_metadata():
         clins["days_to_death"].notna() | clins["days_to_last_follow_up"].notna()
     ].reset_index(drop=True)
 
-    for col in ["sex", "race", "ethnicity"]:
+    for col in ["race", "ethnicity"]:
         clins[col] = clins[col].fillna("not reported")
+
+    clins = clins[(clins["age"].notna()) & (clins["sex"].notna())]
+    clins = clins[
+        ((clins["vital_status"] == "Dead") & (clins["days_to_death"] >= 0))
+        | ((clins["vital_status"] == "Alive") & (clins["days_to_last_follow_up"] >= 0))
+    ]
 
     clins = clins.sort_values(["project", "case_id"]).reset_index(drop=True)
 

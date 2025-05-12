@@ -175,10 +175,20 @@ dev
 runs/
 figs/
 
-gdc-client
-downloaded-expr
-UNI2-h-features
-expr
-hist
-TCGA_Reports.csv
-clinical.csv
+data/gdc-client
+data/downloaded-expr
+data/UNI2-h-features
+data/expr
+data/hist
+data/TCGA_Reports.csv
+data/Hist-not-found.csv
+data/Expr-not-found.csv
+data/sampled.csv
+data/summarized_reports_corrected.csv
+
+embed/*.h5
+embed/*.h5ad
+embed/model-cache
+embed/preprocessed_genes.csv
+
+results/*.npy

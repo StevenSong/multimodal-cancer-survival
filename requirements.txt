@@ -14,7 +14,9 @@ openai
 pandas
 pqdm
 pre-commit
+scanpy
 scikit-learn
+scikit-survival
 scipy
 seaborn
 statannotations
@@ -28,3 +30,4 @@ vllm
 wandb
 omegaconf
 git+https://github.com/StevenSong/BulkRNABert.git
+git+https://github.com/StevenSong/UCE.git

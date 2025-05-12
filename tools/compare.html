@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Comparison Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .container {
+      display: flex;
+    }
+    .block {
+      margin: 0 auto;
+    }
+    .blurb {
+      text-align: justify;
+    }
+    .editable-title {
+      margin: 10px;
+    }
+    .editable {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px;
+      background-color: white;
+      min-height: 150px;
+      min-width: 40vw;
+      max-width: 600px;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="block">
+      <h2>Compare and Correct Reports</h2>
+    </div>
+  </div>
+  <div class="container">
+    <div class="block">
+      <p class="blurb">Use this tool to interactively search for text from one report in the other. Simply select text in one text box, either by click/dragging with the cursor or with the arrow/shift keys, and matching text will be highlighted in the other text box. Edit text as necessary. Note that this is not a diff checker. Instead, this tool allows comparison of highly related text that may be substantially different in format, such as comparing original and summarized text.</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="block">
+      <div class="editable-title">
+        <h4>Source Report</h4>
+      </div>
+      <div id="textA" class="editable" contenteditable="true">
+      </div>
+    </div>
+    <div class="block">
+      <div class="editable-title">
+        <h4>Summarized Report</h4>
+      </div>
+      <div id="textB" class="editable" contenteditable="true">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const textA = document.getElementById("textA");
+    const textB = document.getElementById("textB");
+    let rollbackA = "";
+    let rollbackB = "";
+
+    textA.addEventListener("input", handleInput);
+    textB.addEventListener("input", handleInput);
+
+    function handleInput(event) {
+      let srcElement = event.srcElement;
+      // console.log(srcElement.id + ": " + event.constructor.name);
+      // console.log(event);
+      if (srcElement.id == "textA") {
+        rollbackA = textA.innerText;
+      } else if (srcElement.id == "textB") {
+        rollbackB = textB.innerText;
+      } else {
+        console.log("unclear how this was reached");
+      }
+    }
+
+    textA.addEventListener("paste", plainPaste);
+    textB.addEventListener("paste", plainPaste);
+
+    function plainPaste(e) {
+      // cancel paste
+      e.preventDefault();
+
+      // get text representation of clipboard
+      var text = (e.originalEvent || e).clipboardData.getData("text/plain");
+
+      // insert text manually
+      document.execCommand("insertHTML", false, text);
+    }
+
+    document.addEventListener("selectionchange", (event) => {
+      let selection = document.getSelection();
+      // console.log("document selectionchange");
+      // console.log(selection);
+      unhighlight();
+      highlight(selection);
+    });
+
+    function unhighlight() {
+      // only unhighlight (rollback) if previously highlighted
+      // otherwise cursor is reset if naively rollback
+      if (textA.querySelector("span")) {
+        textA.innerHTML = rollbackA;
+      }
+      if (textB.querySelector("span")) {
+        textB.innerHTML = rollbackB;
+      }
+    }
+
+    function highlight(selection) {
+      let range = selection.getRangeAt(0);
+
+      // determine which element user highlighted
+      let srcElement = range.startContainer.parentNode;
+      let dstElement = null;
+      if (srcElement.id == "textA") {
+        dstElement = textB;
+      } else if (srcElement.id == "textB") {
+        dstElement = textA;
+      } else {
+        // neither of the target elements were selected
+        return;
+      }
+
+      // check if any text was selected
+      let text = range.toString();
+      if (text === "") {
+        return;
+      }
+
+      // find and highlight selected text in destination element
+      const regex = new RegExp(`(${escapeRegExp(text)})`, "gi");
+      const highlighted = dstElement.innerHTML.replace(regex, '<span class="highlight">$1</span>');
+      dstElement.innerHTML = highlighted;
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  </script>
+</body>
+</html>
