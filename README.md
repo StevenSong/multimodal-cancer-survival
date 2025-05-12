@@ -17,7 +17,6 @@ conda activate survival
 
 ## TODOs:
 * document UCE embeddings
-* cleanup analysis notebook
 
 ## Citation
 ```
