@@ -15,6 +15,13 @@ conda env create -f env.yml
 conda activate survival
 ```
 
+## Acknowledgements
+This codebase is the culmination and adaptation of several individual components which were used for initial experimentation and hyperparameter tuning, namely:
+* https://github.com/mbwangfpdc/tcga-survival
+* https://github.com/mbwangfpdc/tcga-summarize
+* https://github.com/imadejski/tcga-survival-prediction
+* https://github.com/uc-cdis/multimodal-pathology
+
 ## Citation
 ```
 TODO: add bibtex citation
