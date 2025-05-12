@@ -15,9 +15,6 @@ conda env create -f env.yml
 conda activate survival
 ```
 
-## TODOs:
-* document UCE embeddings
-
 ## Citation
 ```
 TODO: add bibtex citation

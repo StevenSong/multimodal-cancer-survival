@@ -12,7 +12,7 @@ from uce.evaluate import AnndataProcessor
 
 def parse_args(tmp_dir):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset-path", required=True)
+    parser.add_argument("--dataset-folder", required=True)
     parser.add_argument("--output-h5", required=True)
     parser.add_argument("--weights-folder", required=True)
     parser.add_argument("--preprocessed-cache", default="for_uce.h5ad")
@@ -48,12 +48,12 @@ def parse_args(tmp_dir):
     return args
 
 
-def prepare_adata_for_uce(dataset_path, preprocessed_cache, debug=None):
+def prepare_adata_for_uce(dataset_folder, preprocessed_cache, debug=None):
     fpaths = []
-    for root, _, files in os.walk(dataset_path):
+    for root, _, files in os.walk(dataset_folder):
         for f in files:
             if f.endswith(".tsv"):
-                case_id = root.replace(dataset_path, "").lstrip("/").split("/")[0]
+                case_id = root.replace(dataset_folder, "").lstrip("/").split("/")[0]
                 fpath = os.path.join(root, f)
                 fpaths.append((case_id, fpath))
     if debug is not None:
@@ -92,7 +92,7 @@ def main(args):
     else:
         print("Preprocessing dataset")
         adata = prepare_adata_for_uce(
-            dataset_path=args.dataset_path,
+            dataset_path=args.dataset_folder,
             preprocessed_cache=args.preprocessed_cache,
             # debug=100,
         )
